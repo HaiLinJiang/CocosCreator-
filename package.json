@@ -1,0 +1,22 @@
+{
+  "name": "ccc-obfuscated-code",
+  "version": "1.0.0.20200506",
+  "description": "代码混淆工具，支持项目构建后自动混淆代码。",
+  "author": "文弱书生陈皮皮",
+  "main": "main.js",
+  "main-menu": {
+    "扩展/代码混淆工具/构建后自动混淆": {
+      "message": "ccc-obfuscated-code:open-panel"
+    }
+  },
+  "panel": {
+    "main": "panel/index.js",
+    "type": "dockable",
+    "title": "代码混淆工具/构建后自动混淆",
+    "width": 600,
+    "height": 900
+  },
+  "dependencies": {
+    "javascript-obfuscator": "^0.28.0"
+  }
+}
