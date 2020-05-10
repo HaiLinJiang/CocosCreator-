@@ -12,11 +12,11 @@
 
 ![screenshot](https://gitee.com/ifaswind/image-storage/raw/master/ccc-obfuscated-code/screenshot-2.png)
 
-### 环境
+### 运行环境
 
 平台：Windows、Mac
 
-引擎：Cocos Creator 2.x.x（理论上通用）
+编辑器：Cocos Creator 2.x.x（理论上通用）
 
 ### 插件说明
 
@@ -49,6 +49,8 @@
 > 注意：该选项将严重影响性能，影响高达 1.5 倍。使用`controlFlowFlatteningThreshold`选项来控制转换概率。
 >
 > 开启代码控制流扁平化。控制流扁平化会转换源代码的结构，阻碍程序的阅读理解。
+>
+> 皮皮：就是将代码逻辑扁平化了。
 
 
 
@@ -73,6 +75,8 @@
 > 注意：开启这个选项会强制开启 `stringArray`选项。
 >
 > 开启这个选项时会向源代码随机添加无用的代码。
+>
+> 皮皮：就是往代码里面随机加一些没有用的代码，迷惑敌人~
 
 
 
@@ -91,6 +95,8 @@
 > 注意：打开 DevTools 可能会让浏览器卡住。
 >
 > 开启这个选项之后 DevTools 的 console 栏基本上就不能用了（基于 WebKit 的浏览器和火狐都通杀）。
+>
+> 皮皮：开启该选项之后开着 DevTools 就进不了游戏，但是进游戏之后再打开 DevTools 是没问题的。如果想要完全没法使用 DevTools ，需要配合 debugProtectionInterval 一起使用。
 
 
 
@@ -101,6 +107,8 @@
 > 注意：会让浏览器卡住！后果自负。
 >
 > 开启之后，会让调试模式定期聚焦到 Console 栏，让 DevTools 的其他功能也没法用。这个选项需要开启了`debugProtection`才有效。
+>
+> 皮皮：让 DevTools 一直没法用！
 
 
 
@@ -108,7 +116,7 @@
 
 类型：`boolean`| 默认值：`false`
 
-> 禁用`console.log`、`console.info`、`console.error`、`console.warn`、`console.debug`、`console.exception`和`console.trace`，具体实现是用空的函数替换掉这些函数。让人更难调试程序。
+> 禁用`console.log`、`console.info`、`console.error`、`console.warn`、`console.debug`、`console.exception`和`console.trace`，原理是用空的函数替换掉这些函数。
 
 
 
@@ -184,9 +192,9 @@
 
 类型：`boolean`| 默认值：`false`
 
-> 注意：可能会让你的代码爆炸。如果你是大佬，当我没说。
+> 注意：可能会让你的代码爆炸。
 >
-> 混淆自定义的全局变量和函数。
+> 混淆全局变量和函数。
 
 
 
@@ -194,7 +202,7 @@
 
 类型：`string[]` | 默认值：`[]`
 
-> 保留标识符，支持正则表达式。
+> 保留标识符，让其不被混淆，支持正则表达式。
 
 
 
@@ -202,7 +210,7 @@
 
 类型：`string[]` | 默认值：`[]`
 
-> 保留字符串，支持正则表达式。
+> 保留字符串，让其不被混淆，支持正则表达式。
 
 
 
@@ -214,7 +222,7 @@
 >
 > 根据一个固定和随机（混淆时生成）的位置变换`stringArray`。这会让人难以匹配字符串到他们原来的位置。
 >
-> 如果你的代码体积不小那建议你使用这个。
+> 皮皮：随机变换字符串列表中元素的位置。
 
 
 
@@ -247,6 +255,8 @@
 > 注意：要开启`stringArray`才有用
 >
 > 对`stringArray`的内容随机洗牌。
+>
+> 皮皮：对字符串列表进行随机洗牌打乱。
 
 
 
@@ -365,6 +375,8 @@
 类型：`boolean`| 默认值：`false`
 
 > 开启 Object 的 key 转换。
+>
+> 皮皮：将对象转换成多个复杂变量的组合（反正就是丑）。
 
 
 
@@ -375,6 +387,8 @@
 > 开启或禁用字符串的 Unicode 转义序列。
 >
 > 开启该选项会大大增加代码的体积，同时字符串也不难被恢复。只建议代码体积小的情况下使用这个选项。
+>
+> 皮皮：将字符转为 Unicode 格式，看起来又长又臭，但是实际上很容易恢复。
 
 ### 预设
 
