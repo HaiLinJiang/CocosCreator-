@@ -5,7 +5,8 @@ let JavascriptObfuscator = require('javascript-obfuscator');
 let defaultConfig = {
   auto: false,
   files: ['/src/project.js'],
-  preset: 'low',
+  useAbsPath: false,
+  preset: 'lower',
   options: {}
 };
 
@@ -18,21 +19,19 @@ let presets = null;
  */
 function saveConfig(config) {
   let projectPath = Editor.Project.path || Editor.projectPath;
-  let projectName = Editor.Project.name || projectPath.slice(projectPath.lastIndexOf('\\') + 1);
   let configDirPath = Path.join(projectPath, '/local/');
   if (!Fs.existsSync(configDirPath)) Fs.mkdirSync(configDirPath);
   let configFilePath = Path.join(configDirPath, 'ccc-obfuscated-code.json');
-  let configs = {};
+  let object = {};
   // 读取本地配置
   if (Fs.existsSync(configFilePath)) {
-    configs = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
+    object = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
   }
   // 写入配置
-  if (!configs[projectName]) configs[projectName] = {};
   for (let key in config) {
-    configs[projectName][key] = config[key];
+    object[key] = config[key];
   }
-  let string = JSON.stringify(configs, null, 2);
+  let string = JSON.stringify(object, null, 2);
   Fs.writeFileSync(configFilePath, string);
   Editor.log('[CC] 配置文件路径', configFilePath);
 }
@@ -42,16 +41,20 @@ function saveConfig(config) {
  */
 function getConfig() {
   let projectPath = Editor.Project.path || Editor.projectPath;
-  let projectName = Editor.Project.name || projectPath.slice(projectPath.lastIndexOf('\\') + 1);
   let configFilePath = Path.join(projectPath, '/local/ccc-obfuscated-code.json');
   let config = null;
   if (Fs.existsSync(configFilePath)) {
-    config = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'))[projectName];
+    config = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
+    let projectName = Editor.Project.name || projectPath.slice(projectPath.lastIndexOf('\\') + 1);
+    if (config[projectName]) {
+      Fs.unlinkSync(configFilePath);
+      config = null;
+    }
   }
   if (!config) {
     config = defaultConfig;
-    config.options = getPreset('default');
-    if (config.preset !== 'default') {
+    config.options = getPreset('off');
+    if (config.preset !== 'off') {
       let preset = getPreset(config.preset);
       for (let key in preset) {
         config.options[key] = preset[key];
@@ -64,14 +67,14 @@ function getConfig() {
 /**
  * 读取预设参数
  */
-function getPreset(name) {
+function getPreset(type) {
   if (presets) {
-    return presets[name];
+    return presets[type];
   } else {
     let presetFilePath = Editor.url(presetFileUrl);
     if (Fs.existsSync(presetFilePath)) {
       presets = JSON.parse(Fs.readFileSync(presetFilePath, 'utf8'));
-      return presets[name];
+      return presets[type];
     } else {
       return null;
     }
@@ -141,19 +144,20 @@ module.exports = {
 
   },
 
-  async onBuildStart(options, callback) {
+  onBuildStart(options, callback) {
     let config = getConfig();
     if (config.auto) Editor.log('[CC] 将在项目构建完成后自动混淆代码');
 
     callback();
   },
 
-  async onBuildFinished(options, callback) {
+  onBuildFinished(options, callback) {
     let config = getConfig();
     if (config.auto) {
       Editor.log('[CC] 正在混淆代码');
       for (let i = 0; i < config.files.length; i++) {
-        let path = Path.join(options.dest, config.files[i]);
+        if (config.files[i] === '') continue;
+        let path = config.useAbsPath ? config.files[i] : Path.join(options.dest, config.files[i]);
         if (Fs.existsSync(path)) {
           Editor.log('[CC] 混淆文件', path);
           obfuscate(path, config.options);

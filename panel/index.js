@@ -13,8 +13,10 @@ Editor.Panel.extend({
       data() {
         return {
           isSaving: false,
+
           auto: false,
           files: '/src/project.js',
+          useAbsPath: false,
           preset: 'low',
           options: {
             compact: true,
@@ -34,23 +36,32 @@ Editor.Panel.extend({
             renameGlobals: false,
             reservedNames: '',
             reservedStrings: '',
-            rotateStringArray: true,
+            rotateStringArray: false,
             seed: 0,
             selfDefending: false,
-            shuffleStringArray: true,
+            shuffleStringArray: false,
             sourceMap: false,
             sourceMapBaseUrl: '',
             sourceMapFileName: '',
             sourceMapMode: 'separate',
             splitStrings: false,
             splitStringsChunkLength: 10,
-            stringArray: true,
+            stringArray: false,
             stringArrayEncoding: false,
             stringArrayThreshold: 0.8,
             target: 'browser',
             transformObjectKeys: false,
             unicodeEscapeSequence: false
           }
+        }
+      },
+
+      watch: {
+        options: {
+          handler(value) {
+            if (value.deadCodeInjection) vue.options.stringArray = true;
+          },
+          deep: true
         }
       },
 
@@ -65,6 +76,7 @@ Editor.Panel.extend({
           let config = {
             auto: this.auto,
             files: this.files.split(','),
+            useAbsPath: this.useAbsPath,
             preset: this.preset,
             options: {}
           };
@@ -98,6 +110,7 @@ Editor.Panel.extend({
             if (err) return;
             this.auto = config.auto;
             this.files = config.files.join(',');
+            this.useAbsPath = config.useAbsPath;
             this.preset = config.preset;
             for (let key in config.options) {
               this.options[key] = Array.isArray(config.options[key]) ? config.options[key].join(',') : config.options[key];
@@ -120,14 +133,6 @@ Editor.Panel.extend({
     });
 
     vue.readConfig();
-  },
-
-  run(argv) {
-    // Editor.log('run', argv);
-  },
-
-  close() {
-    // Editor.log('close');
   }
 
 });

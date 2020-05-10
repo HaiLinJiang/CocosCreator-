@@ -1,6 +1,6 @@
 {
   "name": "ccc-obfuscated-code",
-  "version": "1.0.0.20200506",
+  "version": "1.0.1.20200510",
   "description": "代码混淆工具，支持项目构建后自动混淆代码。",
   "author": "文弱书生陈皮皮",
   "main": "main.js",

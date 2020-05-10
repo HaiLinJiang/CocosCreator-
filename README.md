@@ -9,13 +9,14 @@
 ### 截图
 
 ![screenshot](https://gitee.com/ifaswind/image-storage/raw/master/ccc-obfuscated-code/screenshot.png)
+
 ![screenshot](https://gitee.com/ifaswind/image-storage/raw/master/ccc-obfuscated-code/screenshot-2.png)
 
 ### 环境
 
-平台：Windows、Mac（未测试）
+平台：Windows、Mac
 
-引擎：Cocos Creator 2.3.3（理论上通用）
+引擎：Cocos Creator 2.x.x（理论上通用）
 
 ### 插件说明
 
