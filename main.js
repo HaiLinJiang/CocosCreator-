@@ -45,6 +45,7 @@ function getConfig() {
   let config = null;
   if (Fs.existsSync(configFilePath)) {
     config = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
+    // 删除旧版本（1.0.0）的配置文件
     let projectName = Editor.Project.name || projectPath.slice(projectPath.lastIndexOf('\\') + 1);
     if (config[projectName]) {
       Fs.unlinkSync(configFilePath);
@@ -97,12 +98,14 @@ module.exports = {
 
   load() {
     Editor.Builder.on('build-start', this.onBuildStart);
-    Editor.Builder.on('build-finished', this.onBuildFinished);
+    // Editor.Builder.on('build-finished', this.onBuildFinished);
+    Editor.Builder.on('before-change-files', this.onBeforeChangeFiles);
   },
 
   unload() {
     Editor.Builder.removeListener('build-start', this.onBuildStart);
-    Editor.Builder.removeListener('build-finished', this.onBuildFinished);
+    // Editor.Builder.removeListener('build-finished', this.onBuildFinished);
+    Editor.Builder.removeListener('before-change-files', this.onBeforeChangeFiles);
   },
 
   messages: {
@@ -151,7 +154,7 @@ module.exports = {
     callback();
   },
 
-  onBuildFinished(options, callback) {
+  onBeforeChangeFiles(options, callback) {
     let config = getConfig();
     if (config.auto) {
       Editor.log('[CC] 正在混淆代码');
@@ -170,4 +173,5 @@ module.exports = {
 
     callback();
   },
+  
 }
