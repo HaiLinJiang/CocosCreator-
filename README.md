@@ -10,8 +10,6 @@
 
 ![screenshot](https://gitee.com/ifaswind/image-storage/raw/master/ccc-obfuscated-code/screenshot.png)
 
-![screenshot](https://gitee.com/ifaswind/image-storage/raw/master/ccc-obfuscated-code/screenshot-2.png)
-
 ### 运行环境
 
 平台：Windows、Mac
