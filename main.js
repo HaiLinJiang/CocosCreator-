@@ -1,8 +1,10 @@
-let Fs = require('fs');
-let Path = require('path');
-let JavascriptObfuscator = require('javascript-obfuscator');
+const Fs = require('fs');
+const Path = require('path');
+const JavascriptObfuscator = require('javascript-obfuscator');
 
-let defaultConfig = {
+const configFileDir = 'local/';
+const configFileName = 'ccc-obfuscated-code.json';
+const defaultConfig = {
   auto: false,
   files: ['/src/project.js'],
   useAbsPath: false,
@@ -10,30 +12,28 @@ let defaultConfig = {
   options: {}
 };
 
-let presetFileUrl = 'packages://ccc-obfuscated-code/preset.json';
+const presetFileUrl = 'packages://ccc-obfuscated-code/preset.json';
 let presets = null;
 
 /**
  * 保存配置
- * @param {*} config 
+ * @param {object} config 
  */
 function saveConfig(config) {
   let projectPath = Editor.Project.path || Editor.projectPath;
-  let configDirPath = Path.join(projectPath, '/local/');
+  let configDirPath = Path.join(projectPath, configFileDir);
   if (!Fs.existsSync(configDirPath)) Fs.mkdirSync(configDirPath);
-  let configFilePath = Path.join(configDirPath, 'ccc-obfuscated-code.json');
-  let object = {};
+  let configFilePath = Path.join(configDirPath, configFileName);
   // 读取本地配置
+  let object = {};
   if (Fs.existsSync(configFilePath)) {
     object = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
   }
   // 写入配置
-  for (let key in config) {
-    object[key] = config[key];
-  }
+  for (let key in config) object[key] = config[key];
   let string = JSON.stringify(object, null, 2);
   Fs.writeFileSync(configFilePath, string);
-  Editor.log('[CC] 配置文件路径', configFilePath);
+  Editor.log('[CC]', '配置文件路径', configFilePath);
 }
 
 /**
@@ -41,19 +41,13 @@ function saveConfig(config) {
  */
 function getConfig() {
   let projectPath = Editor.Project.path || Editor.projectPath;
-  let configFilePath = Path.join(projectPath, '/local/ccc-obfuscated-code.json');
+  let configFilePath = Path.join(projectPath, configFileDir, configFileName);
   let config = null;
   if (Fs.existsSync(configFilePath)) {
     config = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
-    // 删除旧版本（1.0.0）的配置文件
-    let projectName = Editor.Project.name || projectPath.slice(projectPath.lastIndexOf('\\') + 1);
-    if (config[projectName]) {
-      Fs.unlinkSync(configFilePath);
-      config = null;
-    }
   }
   if (!config) {
-    config = defaultConfig;
+    config = JSON.parse(JSON.stringify(defaultConfig));
     config.options = getPreset('off');
     if (config.preset !== 'off') {
       let preset = getPreset(config.preset);
@@ -63,29 +57,28 @@ function getConfig() {
     }
   }
   return config;
-};
+}
 
 /**
  * 读取预设参数
+ * @param {string} type 预设名 
  */
 function getPreset(type) {
-  if (presets) {
+  if (presets) return presets[type];
+
+  let presetFilePath = Editor.url(presetFileUrl);
+  if (Fs.existsSync(presetFilePath)) {
+    presets = JSON.parse(Fs.readFileSync(presetFilePath, 'utf8'));
     return presets[type];
-  } else {
-    let presetFilePath = Editor.url(presetFileUrl);
-    if (Fs.existsSync(presetFilePath)) {
-      presets = JSON.parse(Fs.readFileSync(presetFilePath, 'utf8'));
-      return presets[type];
-    } else {
-      return null;
-    }
   }
-};
+
+  return null;
+}
 
 /**
  * 混淆
- * @param {*} path 文件路径
- * @param {*} options 混淆参数
+ * @param {string} path 文件路径
+ * @param {ObfuscatorOptions} options 混淆参数
  */
 function obfuscate(path, options) {
   let sourceCode = Fs.readFileSync(path, 'utf8');
@@ -98,80 +91,88 @@ module.exports = {
 
   load() {
     Editor.Builder.on('build-start', this.onBuildStart);
-    // Editor.Builder.on('build-finished', this.onBuildFinished);
     Editor.Builder.on('before-change-files', this.onBeforeChangeFiles);
   },
 
   unload() {
     Editor.Builder.removeListener('build-start', this.onBuildStart);
-    // Editor.Builder.removeListener('build-finished', this.onBuildFinished);
     Editor.Builder.removeListener('before-change-files', this.onBeforeChangeFiles);
   },
 
   messages: {
 
     'open-panel'() {
-      Editor.log('[CC] 代码混淆工具/构建后自动混淆');
+      Editor.log('[CC]', '代码混淆工具/构建后自动混淆');
       Editor.Panel.open('ccc-obfuscated-code');
     },
 
     // TODO
-    // 'open-panel'() {
+    // 'open-panel-do'() {
     //   Editor.log('[CC] 代码混淆工具/主动混淆');
     //   Editor.Panel.open('ccc-obfuscated-code-do');
     // },
 
     'save-config'(event, config) {
-      Editor.log('[CC] 保存配置');
+      Editor.log('[CC]', '保存配置');
       saveConfig(config);
       event.reply(null, true);
     },
 
     'read-config'(event) {
-      Editor.log('[CC] 读取配置');
+      Editor.log('[CC]', '读取配置');
       let config = getConfig();
       event.reply(null, config);
     },
 
     'get-preset'(event, name) {
-      Editor.log('[CC] 读取预设', name);
+      Editor.log('[CC]', '读取预设', name);
       let preset = getPreset(name);
       if (preset) {
         event.reply(null, preset);
       } else {
-        Editor.log('[CC] 预设文件已丢失');
-        Editor.log('[CC] 文件下载地址 https://gitee.com/ifaswind/ccc-obfuscated-code/blob/master/preset.json');
+        Editor.warn('[CC]', '预设文件已丢失');
+        Editor.warn('[CC]', '预设文件下载地址 https://gitee.com/ifaswind/ccc-obfuscated-code/blob/master/preset.json');
         event.reply(null, {});
       }
     }
 
   },
 
+  /**
+   * 
+   * @param {BuildOptions} options 
+   * @param {Function} callback 
+   */
   onBuildStart(options, callback) {
-    let config = getConfig();
-    if (config.auto) Editor.log('[CC] 将在项目构建完成后自动混淆代码');
+    const config = getConfig();
+    if (config.auto) Editor.log('[CC]', '将在项目构建完成后自动混淆代码');
 
     callback();
   },
 
+  /**
+   * 
+   * @param {BuildOptions} options 
+   * @param {Function} callback 
+   */
   onBeforeChangeFiles(options, callback) {
-    let config = getConfig();
+    const config = getConfig();
     if (config.auto) {
-      Editor.log('[CC] 正在混淆代码');
+      Editor.log('[CC]', '正在混淆代码...');
       for (let i = 0; i < config.files.length; i++) {
         if (config.files[i] === '') continue;
         let path = config.useAbsPath ? config.files[i] : Path.join(options.dest, config.files[i]);
         if (Fs.existsSync(path)) {
-          Editor.log('[CC] 混淆文件', path);
           obfuscate(path, config.options);
+          Editor.log('[CC]', '已混淆文件', path);
         } else {
-          Editor.warn('[CC] 文件不存在', path);
+          Editor.warn('[CC]', '文件不存在', path);
         }
       }
-      Editor.log('[CC] 混淆已结束');
+      Editor.log('[CC]', '混淆已结束');
     }
 
     callback();
   },
-  
+
 }
