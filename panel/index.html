@@ -4,12 +4,13 @@
     <div>
       <ui-prop name="构建后自动混淆" type="boolean" v-value="auto" tooltip="· 项目构建完成后根据已保存配置自动混淆代码。"></ui-prop>
       <hr />
-      <ui-prop name="需要混淆的文件" style='height: 50;'
+      <!-- <ui-prop name="额外需要混淆的文件（非项目代码文件）" style='height: 50;'
         tooltip="· 默认根目录为项目导出目录 build/{dest}/&#10;· 绝对路径如：E:\hahaha\build\web-mobile\src\project.js&#10;* 多个值之间用 ',' 隔开">
         <ui-checkbox v-value="useAbsPath">绝对路径?</ui-checkbox>
-        <ui-text-area class="flex-1" type="string" v-value="files"></ui-text-area>
+        <ui-text-area v-show="extraFiles != ''" class="flex-1" type="string" v-value="extraFiles"></ui-text-area>
+        <ui-input v-show="extraFiles == ''" class="flex-1" type="string" v-value="extraFiles"></ui-input>
       </ui-prop>
-      <hr />
+      <hr /> -->
       <ui-prop name="预设"
         tooltip="· 可用值：&#10;- 高度混淆，性能较低：性能比不混淆慢 50 - 100%&#10;- 中度混淆，性能均衡：性能比不混淆慢 30 - 50%&#10;- 轻度混淆，性能较高：性能只会比不混淆稍微慢一点点">
         <ui-select class="flex-1" v-value="preset">
@@ -37,8 +38,9 @@
       <ui-prop name="controlFlowFlattening（逻辑扁平化）" type="boolean" v-value="options.controlFlowFlattening"
         tooltip="· 皮皮：就是将代码逻辑扁平化了。&#10;· 注意：该选项将严重影响性能，影响高达 1.5 倍。使用 controlFlowFlatteningThreshold 选项来控制转换概率。&#10;· 开启代码控制流扁平化。控制流扁平化会转换源代码的结构，阻碍程序的阅读理解。">
       </ui-prop>
-      <ui-prop name="controlFlowFlatteningThreshold（扁平化比例）" v-if="options.controlFlowFlattening" indent="1" type="number"
-        v-value="options.controlFlowFlatteningThreshold" step="0.01" min="0" max="1" tooltip="· 应用控制流扁平化的概率。"></ui-prop>
+      <ui-prop name="controlFlowFlatteningThreshold（扁平化比例）" v-if="options.controlFlowFlattening" indent="1"
+        type="number" v-value="options.controlFlowFlatteningThreshold" step="0.01" min="0" max="1"
+        tooltip="· 应用控制流扁平化的概率。"></ui-prop>
       <ui-prop name="deadCodeInjection（注入废代码）" type="boolean" v-value="options.deadCodeInjection"
         tooltip="· 皮皮：就是往代码里面随机加一些没有用的代码，迷惑敌人~&#10;· 注意：该选项会大大增加代码的体积（甚至高达 200%）。可以使用 deadCodeInjectionThreshold 来设置添加的比例。&#10;· 注意：开启这个选项会强制使用 stringArray 。">
       </ui-prop>

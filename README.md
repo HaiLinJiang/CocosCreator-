@@ -1,34 +1,48 @@
 # 代码混淆工具
 
-### 介绍
+## 介绍
 
 [Cocos Creator 编辑器插件] 混淆代码工具，支持项目构建后自动混淆代码以及主动混淆目标文件（TODO）。
 
 - 混淆引擎：[javascript-obfuscator@0.28.0](https://github.com/javascript-obfuscator/javascript-obfuscator)
 
-### 截图
+如果此项目对你有帮助，请不要忘记 [![star](https://gitee.com/ifaswind/ccc-obfuscated-code/badge/star.svg?theme=dark)](https://gitee.com/ifaswind/ccc-obfuscated-code/stargazers)
 
-![screenshot](https://gitee.com/ifaswind/image-storage/raw/master/ccc-obfuscated-code/screenshot.png)
+如有使用上的问题，可以在 gitee 上提 issue 或者添加我的微信 `im_chenpipi` 并留言。
 
-### 运行环境
+
+
+## 截图
+
+![screenshot](https://gitee.com/ifaswind/image-storage/raw/master/repositories/ccc-obfuscated-code/screenshot.png)
+
+
+
+## 环境
 
 平台：Windows、Mac
 
-编辑器：Cocos Creator 2.x.x（理论上通用）
+引擎：Cocos Creator 2.x.x（理论上通用）
 
-### 插件说明
 
-1. 插件默认禁用
 
-2. 点击 **[ 扩展 --> 代码混淆工具 --> 构建后自动混淆 ]** 启用自动混淆并设置参数
+## 说明
 
-3. 配置文件保存路径为 **[ {项目根目录}/local/ccc-obfuscated-code.json ]**
+1. 将插件文件夹 `ccc-obfuscated-code` 放置在 `${用户目录}/.CocosCreator/packages` 目录下即可
 
-### 参数说明
+3. 本插件默认禁用，需自行启用
+
+2. 点击顶部菜单栏的 **[ 扩展 --> 代码混淆工具 ]** 打开插件配置面板
+
+4. 配置文件存放路径：`${项目目录}/local/ccc-obfuscated-code.json`
+
+
+
+## 参数说明
+
+- Javascript Obfuscator 文档：[传送门](https://github.com/javascript-obfuscator/javascript-obfuscator/blob/master/README.md)
 
 - 以下均为我人工翻译的内容，尽我所能翻译得通俗易懂了。
-
-- 原英文文档：[传送门](https://github.com/javascript-obfuscator/javascript-obfuscator/blob/master/README.md)
 
 
 
@@ -476,15 +490,9 @@
 }
 ```
 
-### 关于
 
-作者：陈皮皮（ifaswind）
 
-公众号：文弱书生陈皮皮
-
-![weixin](https://gitee.com/ifaswind/image-storage/raw/master/weixin/qrcode.png)
-
-### *License*
+## *License*
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -505,3 +513,27 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+---
+
+
+
+# 菜鸟小栈
+
+我是陈皮皮，这是我的个人公众号，专注但不仅限于游戏开发、前端和后端技术记录与分享。
+
+每一篇原创都非常用心，你的关注就是我原创的动力！
+
+> Input and output.
+
+![](https://gitee.com/ifaswind/image-storage/raw/master/weixin/official-account.png)
+
+
+
+## 交流群
+
+皮皮创建了一个游戏开发交流群，供大家交流经验、问题求助等。
+
+感兴趣的小伙伴可以添加我微信 `im_chenpipi` 并留言 `加群`。

@@ -1,4 +1,4 @@
-let Fs = require('fs');
+const Fs = require('fs');
 
 Editor.Panel.extend({
 
@@ -7,7 +7,7 @@ Editor.Panel.extend({
   template: Fs.readFileSync(Editor.url('packages://ccc-obfuscated-code/panel/index.html'), 'utf8'),
 
   ready() {
-    let vue = new window.Vue({
+    const app = new window.Vue({
       el: this.shadowRoot,
 
       data() {
@@ -15,8 +15,8 @@ Editor.Panel.extend({
           isSaving: false,
 
           auto: false,
-          files: '/src/project.js',
-          useAbsPath: false,
+          // extraFiles: '',
+          // useAbsPath: false,
           preset: 'low',
           options: {
             compact: true,
@@ -59,7 +59,7 @@ Editor.Panel.extend({
       watch: {
         options: {
           handler(value) {
-            if (value.deadCodeInjection) vue.options.stringArray = true;
+            if (value.deadCodeInjection) app.options.stringArray = true;
           },
           deep: true
         }
@@ -75,13 +75,13 @@ Editor.Panel.extend({
 
           let config = {
             auto: this.auto,
-            files: this.files.split(','),
-            useAbsPath: this.useAbsPath,
+            // useAbsPath: this.useAbsPath,
             preset: this.preset,
             options: {}
           };
           for (let key in this.options) {
             switch (key) {
+              // case 'extraFiles':
               case 'domainLock': case 'identifiersDictionary': case 'reservedNames': case 'reservedStrings':
                 config.options[key] = this.options[key] == '' ? [] : this.options[key].split(',');
                 break;
@@ -109,8 +109,8 @@ Editor.Panel.extend({
           Editor.Ipc.sendToMain('ccc-obfuscated-code:read-config', (err, config) => {
             if (err) return;
             this.auto = config.auto;
-            this.files = config.files.join(',');
-            this.useAbsPath = config.useAbsPath;
+            // this.extraFiles = config.extraFiles.join(',');
+            // this.useAbsPath = config.useAbsPath;
             this.preset = config.preset;
             for (let key in config.options) {
               this.options[key] = Array.isArray(config.options[key]) ? config.options[key].join(',') : config.options[key];
@@ -132,7 +132,8 @@ Editor.Panel.extend({
       }
     });
 
-    vue.readConfig();
+    app.readConfig();
+
   }
 
 });

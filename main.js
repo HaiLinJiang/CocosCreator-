@@ -6,86 +6,14 @@ const configFileDir = 'local/';
 const configFileName = 'ccc-obfuscated-code.json';
 const defaultConfig = {
   auto: false,
-  files: ['/src/project.js'],
-  useAbsPath: false,
+  // extraFiles: [],
+  // useAbsPath: false,
   preset: 'lower',
   options: {}
 };
 
 const presetFileUrl = 'packages://ccc-obfuscated-code/preset.json';
 let presets = null;
-
-/**
- * 保存配置
- * @param {object} config 
- */
-function saveConfig(config) {
-  let projectPath = Editor.Project.path || Editor.projectPath;
-  let configDirPath = Path.join(projectPath, configFileDir);
-  if (!Fs.existsSync(configDirPath)) Fs.mkdirSync(configDirPath);
-  let configFilePath = Path.join(configDirPath, configFileName);
-  // 读取本地配置
-  let object = {};
-  if (Fs.existsSync(configFilePath)) {
-    object = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
-  }
-  // 写入配置
-  for (let key in config) object[key] = config[key];
-  let string = JSON.stringify(object, null, 2);
-  Fs.writeFileSync(configFilePath, string);
-  Editor.log('[CC]', '配置文件路径', configFilePath);
-}
-
-/**
- * 读取配置
- */
-function getConfig() {
-  let projectPath = Editor.Project.path || Editor.projectPath;
-  let configFilePath = Path.join(projectPath, configFileDir, configFileName);
-  let config = null;
-  if (Fs.existsSync(configFilePath)) {
-    config = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
-  }
-  if (!config) {
-    config = JSON.parse(JSON.stringify(defaultConfig));
-    config.options = getPreset('off');
-    if (config.preset !== 'off') {
-      let preset = getPreset(config.preset);
-      for (let key in preset) {
-        config.options[key] = preset[key];
-      }
-    }
-  }
-  return config;
-}
-
-/**
- * 读取预设参数
- * @param {string} type 预设名 
- */
-function getPreset(type) {
-  if (presets) return presets[type];
-
-  let presetFilePath = Editor.url(presetFileUrl);
-  if (Fs.existsSync(presetFilePath)) {
-    presets = JSON.parse(Fs.readFileSync(presetFilePath, 'utf8'));
-    return presets[type];
-  }
-
-  return null;
-}
-
-/**
- * 混淆
- * @param {string} path 文件路径
- * @param {ObfuscatorOptions} options 混淆参数
- */
-function obfuscate(path, options) {
-  let sourceCode = Fs.readFileSync(path, 'utf8');
-  let obfuscationResult = JavascriptObfuscator.obfuscate(sourceCode, options);
-  let obfuscatedCode = obfuscationResult.getObfuscatedCode();
-  Fs.writeFileSync(path, obfuscatedCode);
-}
 
 module.exports = {
 
@@ -102,25 +30,24 @@ module.exports = {
   messages: {
 
     'open-panel'() {
-      Editor.log('[CC]', '代码混淆工具/构建后自动混淆');
       Editor.Panel.open('ccc-obfuscated-code');
     },
 
     // TODO
     // 'open-panel-do'() {
-    //   Editor.log('[CC] 代码混淆工具/主动混淆');
     //   Editor.Panel.open('ccc-obfuscated-code-do');
     // },
 
     'save-config'(event, config) {
-      Editor.log('[CC]', '保存配置');
-      saveConfig(config);
+      const configFilePath = saveConfig(config);
+      Editor.log('[CC]', '保存配置', configFilePath);
       event.reply(null, true);
     },
 
     'read-config'(event) {
-      Editor.log('[CC]', '读取配置');
-      let config = getConfig();
+      const config = getConfig();
+      if (config) Editor.log('[CC]', '读取本地配置');
+      else Editor.log('[CC]', '未找到本地配置文件');
       event.reply(null, config);
     },
 
@@ -158,21 +85,104 @@ module.exports = {
   onBeforeChangeFiles(options, callback) {
     const config = getConfig();
     if (config.auto) {
-      Editor.log('[CC]', '正在混淆代码...');
-      for (let i = 0; i < config.files.length; i++) {
-        if (config.files[i] === '') continue;
-        let path = config.useAbsPath ? config.files[i] : Path.join(options.dest, config.files[i]);
-        if (Fs.existsSync(path)) {
-          obfuscate(path, config.options);
-          Editor.log('[CC]', '已混淆文件', path);
-        } else {
-          Editor.warn('[CC]', '文件不存在', path);
-        }
+      Editor.log('[CC]', '正在混淆代码');
+      // Cocos Creator 2.4 以下
+      const srcPath = Path.join(options.dest, 'src', 'project.js');
+      if (Fs.existsSync(srcPath)) {
+        obfuscate(srcPath, config.options);
+        Editor.log('[CC]', '已混淆项目代码文件', srcPath);
       }
-      Editor.log('[CC]', '混淆已结束');
+      // Cocos Creator 2.4 以上
+      const assetsPath = Path.join(options.dest, 'assets', 'main', 'index.js');
+      if (Fs.existsSync(assetsPath)) {
+        obfuscate(assetsPath, config.options);
+        Editor.log('[CC]', '已混淆项目代码文件', assetsPath);
+      }
+      // 额外需要混淆的文件
+      // for (let i = 0; i < config.extraFiles.length; i++) {
+      //   if (config.extraFiles[i] === '') continue;
+      //   const path = config.useAbsPath ? config.extraFiles[i] : Path.join(options.dest, config.extraFiles[i]);
+      //   if (Fs.existsSync(path)) {
+      //     obfuscate(path, config.options);
+      //     Editor.log('[CC]', '已额外混淆文件', path);
+      //   } else {
+      //     Editor.warn('[CC]', '需额外混淆文件不存在', path);
+      //   }
+      // }
+      Editor.log('[CC]', '混淆已完成');
     }
 
     callback();
   },
 
+}
+
+/**
+ * 保存配置
+ * @param {object} config 
+ */
+function saveConfig(config) {
+  // 查找目录
+  const projectPath = Editor.Project.path || Editor.projectPath;
+  const configDirPath = Path.join(projectPath, configFileDir);
+  if (!Fs.existsSync(configDirPath)) Fs.mkdirSync(configDirPath);
+  const configFilePath = Path.join(projectPath, configFileDir, configFileName);
+  // 读取本地配置
+  let object = {};
+  if (Fs.existsSync(configFilePath)) {
+    object = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
+  }
+  // 写入配置
+  for (const key in config) { object[key] = config[key]; }
+  Fs.writeFileSync(configFilePath, JSON.stringify(object, null, 2));
+  return configFilePath;
+}
+
+/**
+ * 读取配置
+ */
+function getConfig() {
+  const projectPath = Editor.Project.path || Editor.projectPath;
+  const configFilePath = Path.join(projectPath, configFileDir, configFileName);
+  let config = null;
+  if (Fs.existsSync(configFilePath)) {
+    config = JSON.parse(Fs.readFileSync(configFilePath, 'utf8'));
+  }
+  if (!config) {
+    config = JSON.parse(JSON.stringify(defaultConfig));
+    config.options = getPreset('off');
+    if (config.preset !== 'off') {
+      const preset = getPreset(config.preset);
+      for (const key in preset) { config.options[key] = preset[key]; }
+    }
+  }
+  return config;
+}
+
+/**
+ * 读取预设参数
+ * @param {string} type 预设名 
+ */
+function getPreset(type) {
+  if (presets) return presets[type];
+
+  const presetFilePath = Editor.url(presetFileUrl);
+  if (Fs.existsSync(presetFilePath)) {
+    presets = JSON.parse(Fs.readFileSync(presetFilePath, 'utf8'));
+    return presets[type];
+  }
+
+  return null;
+}
+
+/**
+ * 混淆
+ * @param {string} filePath 文件路径
+ * @param {ObfuscatorOptions} options 混淆参数
+ */
+function obfuscate(filePath, options) {
+  const sourceCode = Fs.readFileSync(filePath, 'utf8');
+  const obfuscationResult = JavascriptObfuscator.obfuscate(sourceCode, options);
+  const obfuscatedCode = obfuscationResult.getObfuscatedCode();
+  Fs.writeFileSync(filePath, obfuscatedCode);
 }
