@@ -90,13 +90,30 @@ module.exports = {
       const srcPath = Path.join(options.dest, 'src', 'project.js');
       if (Fs.existsSync(srcPath)) {
         obfuscate(srcPath, config.options);
-        Editor.log('[CC]', '已混淆项目代码文件', srcPath);
+        Editor.log('[CC]', '已混淆代码文件', srcPath);
       }
       // Cocos Creator 2.4 以上
-      const assetsPath = Path.join(options.dest, 'assets', 'main', 'index.js');
-      if (Fs.existsSync(assetsPath)) {
-        obfuscate(assetsPath, config.options);
-        Editor.log('[CC]', '已混淆项目代码文件', assetsPath);
+      const assets = Fs.readdirSync(Path.join(options.dest, 'assets'));
+      for (const name of assets) {
+        if (name === 'internal' || name === 'resources') continue;
+        const filePath = Path.join(options.dest, 'assets', name, 'index.js');
+        if (Fs.existsSync(filePath)) {
+          obfuscate(filePath, config.options);
+          Editor.log('[CC]', '已混淆代码文件', filePath);
+        }
+      }
+      // 子包
+      const subpackages = Fs.readdirSync(Path.join(options.dest, 'subpackages'));
+      for (const name of subpackages) {
+        const _names = Fs.readdirSync(Path.join(options.dest, 'subpackages', name));
+        for (const _name of _names) {
+          const filePath = Path.join(options.dest, 'subpackages', name, _name);
+          if (Path.extname(filePath) === '.js') {
+            obfuscate(filePath, config.options);
+            Editor.log('[CC]', '已混淆代码文件', filePath);
+            continue;
+          }
+        }
       }
       // 额外需要混淆的文件
       // for (let i = 0; i < config.extraFiles.length; i++) {
