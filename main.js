@@ -4,6 +4,7 @@ const JavascriptObfuscator = require('javascript-obfuscator');
 
 const configFileDir = 'local/';
 const configFileName = 'ccc-obfuscated-code.json';
+
 const defaultConfig = {
   auto: false,
   // extraFiles: [],
@@ -93,25 +94,17 @@ module.exports = {
         Editor.log('[CC]', '已混淆代码文件', srcPath);
       }
       // Cocos Creator 2.4 以上
-      const assets = Fs.readdirSync(Path.join(options.dest, 'assets'));
-      for (const name of assets) {
-        if (name === 'internal' || name === 'resources') continue;
-        const filePath = Path.join(options.dest, 'assets', name, 'index.js');
-        if (Fs.existsSync(filePath)) {
-          obfuscate(filePath, config.options);
-          Editor.log('[CC]', '已混淆代码文件', filePath);
-        }
-      }
-      // 子包
-      const subpackages = Fs.readdirSync(Path.join(options.dest, 'subpackages'));
-      for (const name of subpackages) {
-        const _names = Fs.readdirSync(Path.join(options.dest, 'subpackages', name));
-        for (const _name of _names) {
-          const filePath = Path.join(options.dest, 'subpackages', name, _name);
-          if (Path.extname(filePath) === '.js') {
+      const list = ['assets', 'subpackages'];
+      for (let i = 0; i < list.length; i++) {
+        const dirPath = Path.join(options.dest, list[i]);
+        if (!Fs.existsSync(dirPath)) continue;
+        const names = Fs.readdirSync(dirPath);
+        for (const name of names) {
+          if (list[i] === 'assets' && (name === 'internal' || name === 'resources')) continue;
+          const filePath = Path.join(dirPath, name, 'index.js');
+          if (Fs.existsSync(filePath)) {
             obfuscate(filePath, config.options);
             Editor.log('[CC]', '已混淆代码文件', filePath);
-            continue;
           }
         }
       }
