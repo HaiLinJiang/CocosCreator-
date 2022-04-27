@@ -6,9 +6,6 @@
 
 - 混淆引擎：[javascript-obfuscator@0.28.0](https://github.com/javascript-obfuscator/javascript-obfuscator)
 
-如果此项目对你有帮助，请不要忘记 [![star](https://gitee.com/ifaswind/ccc-obfuscated-code/badge/star.svg?theme=dark)](https://gitee.com/ifaswind/ccc-obfuscated-code/stargazers)
-
-
 
 ## 截图
 
